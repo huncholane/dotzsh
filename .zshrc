@@ -19,7 +19,37 @@ setopt SHARE_HISTORY
 setopt HIST_IGNORE_DUPS
 setopt HIST_IGNORE_SPACE
 
-# Lazy-load conda — only initializes when you first call conda or activate
+# Plugin manager
+# Usage:
+#   plug <pkg> <source>            — eager load (source immediately)
+#   plug <pkg> <source> cmd1 cmd2  — lazy load (stubs for listed commands)
+# <source> can be a file path or a command string to eval.
+# Auto-installs via pacman if the package is missing.
+function plug() {
+  local pkg=$1 src=$2
+  shift 2
+  pacman -Q "$pkg" &>/dev/null || sudo pacman -S --noconfirm "$pkg"
+  if (( $# == 0 )); then
+    if [[ -f "$src" ]]; then source "$src"; else eval "$src"; fi
+  else
+    local cmds="$*"
+    for cmd in "$@"; do
+      eval "function $cmd() {
+        unfunction $cmds 2>/dev/null
+        if [[ -f ${(qq)src} ]]; then source ${(qq)src}; else eval ${(qq)src}; fi
+        $cmd \"\$@\"
+      }"
+    done
+  fi
+}
+
+# Plugins — eager
+plug zsh-autosuggestions /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+# Plugins — lazy
+plug zoxide 'eval "$(zoxide init zsh)"' z zi
+
+# Lazy-load conda
 conda() {
   unfunction conda mamba activate 2>/dev/null
   eval "$("$HOME/miniconda3/bin/conda" shell.zsh hook)"
@@ -54,6 +84,3 @@ npx() {
 
 # Emacs keybindings
 bindkey -e
-
-# Autosuggestions
-source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
