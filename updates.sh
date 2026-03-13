@@ -14,13 +14,13 @@ fi
 
 (
   cd "$ZDOTDIR" && git fetch origin && if [ "$(git rev-parse HEAD)" != "$(git rev-parse '@{u}')" ]; then
-    printf "\e[31mdotzsh update is available\e[0m\n"
+    printf "\e[34mdotzsh update available. Run udz to apply.\e[0m\n"
   fi
 )
 
 # Update dotzsh
 udz() {
-  printf "\e[31mUpdating dotzsh\n"
+  printf "\e[34mUpdating dotzsh\e[0m\n"
   (
     cd "$ZDOTDIR" && git pull --rebase
   )
