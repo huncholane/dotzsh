@@ -31,6 +31,10 @@ install git git
 install nvim neovim
 install tmux tmux
 install hostname inetutils
+install crontab cronie
+if command -v systemctl &>/dev/null; then
+  sudo systemctl enable --now cronie
+fi
 if command -v pacman &>/dev/null; then
   install docker docker
 else
