@@ -36,16 +36,16 @@ custominstall lsd 'cargo install lsd'
 
 # Initialize git setup
 if [[ -z $(git config --global user.name) ]]; then
-  read -rp "Git username: " username
+  read -rp "Git username: " username < /dev/tty
   git config --global user.name "$username"
 fi
 if [[ -z $(git config --global user.email) ]]; then
-  read -rp "Git email: " email
+  read -rp "Git email: " email < /dev/tty
   git config --global user.email "$email"
 fi
 
 # Install dotzsh
-read -rp "Are you sure you want to replace your current config? (y/n): " yn
+read -rp "Are you sure you want to replace your current config? (y/n): " yn < /dev/tty
 if [[ "$yn" == "y" ]]; then
   oldenv="$(cat "$HOME/.zshenv" 2>/dev/null)"
   echo 'export ZDOTDIR=$HOME/.config/zsh' >"$HOME/.zshenv"
