@@ -17,12 +17,20 @@ echo "Using $INSTALL for installations"
 
 # Pass in command to invoke and installation name
 install() {
-  if ! command -v "$1" &>/dev/null; then $INSTALL $2; fi
+  echo -e "\[31m$1 is already installed. Skipping."
+  if ! command -v "$1" &>/dev/null; then
+    echo -e "\e[33mInstalling $1 using '$INSTALL $2\e[0m'."
+    $INSTALL $2
+  fi
 }
 
 # Pass in command to invoke and installation command
 custominstall() {
-  if ! command -v "$1" &>/dev/null; then eval "$2"; fi
+  echo -e "\[31m$1 is already installed. Skipping."
+  if ! command -v "$1" &>/dev/null; then
+    echo -e "\e[33mInstalling $1 using $2\e[0m"
+    eval "$2"
+  fi
 }
 
 # Install useful tools
@@ -46,16 +54,16 @@ custominstall lsd 'cargo install lsd'
 
 # Initialize git setup
 if [[ -z $(git config --global user.name) ]]; then
-  read -rp "Git username: " username < /dev/tty
+  read -rp "Git username: " username </dev/tty
   git config --global user.name "$username"
 fi
 if [[ -z $(git config --global user.email) ]]; then
-  read -rp "Git email: " email < /dev/tty
+  read -rp "Git email: " email </dev/tty
   git config --global user.email "$email"
 fi
 
 # Install dotzsh
-read -rp "Are you sure you want to replace your current config? (y/n): " yn < /dev/tty
+read -rp "Are you sure you want to replace your current config? (y/n): " yn </dev/tty
 if [[ "$yn" == "y" ]]; then
   oldenv="$(cat "$HOME/.zshenv" 2>/dev/null)"
   echo 'export ZDOTDIR=$HOME/.config/zsh' >"$HOME/.zshenv"
@@ -77,7 +85,10 @@ fi
 # Register update check cron job (every 6 hours)
 CRON_CMD="0 */6 * * * $HOME/.config/zsh/updates.sh # dotzsh-update-check"
 if ! crontab -l 2>/dev/null | grep -q "dotzsh/monitor_updates.sh"; then
-  (crontab -l 2>/dev/null; echo "$CRON_CMD") | crontab -
+  (
+    crontab -l 2>/dev/null
+    echo "$CRON_CMD"
+  ) | crontab -
   echo "Registered update check cron job"
 fi
 
