@@ -11,9 +11,10 @@ source ~/powerlevel10k/powerlevel10k.zsh-theme
 # To customize prompt, run `p10k configure` or edit ~/.config/zsh/.p10k.zsh.
 [[ ! -f ~/.config/zsh/.p10k.zsh ]] || source ~/.config/zsh/.p10k.zsh
 
-# Set up tools before compinit is ran. Best way to ensure autocompletions work.
+# Setup completions
 fpath=("${ZDOTDIR}/.zfunc" $fpath)
 source "$ZDOTDIR/precomp.sh"
+autoload -Uz compinit && compinit
 
 # Set up antidote
 source /usr/share/zsh-antidote/antidote.zsh

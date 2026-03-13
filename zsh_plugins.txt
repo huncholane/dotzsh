@@ -9,3 +9,4 @@ https://github.com/romkatv/powerlevel10k
 https://github.com/MichaelAquilina/zsh-autoswitch-virtualenv
 https://github.com/MichaelAqworthy/zsh-you-should-use
 https://github.com/wfxr/forgit
+https://github.com/romkatv/zsh-defer
