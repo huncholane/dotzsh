@@ -29,7 +29,7 @@ install curl curl
 install git git
 install nvim neovim
 install tmux tmux
-custominstall docker 'curl -fsSL https://get.docker.com | sh'
+install docker docker &>/dev/null || custominstall docker 'curl -fsSL https://get.docker.com | sh'
 custominstall fnm 'curl -fsSL https://fnm.vercel.app/install | bash'
 custominstall cargo "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh" && . "$HOME/.cargo/env"
 custominstall lsd 'cargo install lsd'
