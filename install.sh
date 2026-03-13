@@ -59,7 +59,8 @@ if [[ "$yn" == "y" ]]; then
       echo "Reverted $HOME/.config/zsh to original"
     fi
   else
-    echo "$oldenv" >"$HOME/.config/zsh/.zshenv"
+    echo "$oldenv" >"$HOME/.config/zsh/env.sh"
+    git clone --depth=1 https://github.com/mattmc3/antidote.git ${ZDOTDIR:-~}/.antidote
   fi
 fi
 

@@ -1,5 +1,5 @@
 # Set up antidote
-source /usr/share/zsh-antidote/antidote.zsh
+source "$ZDOTDIR/.antidote/antidote.zsh"
 antidote load ${ZDOTDIR:-$HOME}/zsh_plugins.txt
 
 # Setup completions
