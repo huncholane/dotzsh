@@ -41,6 +41,11 @@ install git git
 install nvim neovim
 install tmux tmux
 install hostname inetutils
+if command -v pacman &>/dev/null; then
+  install gh github-cli
+else
+  install gh gh
+fi
 install crontab cronie
 if command -v systemctl &>/dev/null; then
   sudo systemctl enable --now cronie
