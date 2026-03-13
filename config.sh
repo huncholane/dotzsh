@@ -14,6 +14,7 @@ alias l=lsd
 alias v=nvim
 alias nvm=fnm
 alias ll='lsd -l'
+alias pip='uv pip'
 
 # History substring search
 bindkey '^[[A' history-substring-search-up   # or '\eOA'
