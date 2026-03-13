@@ -1,5 +1,6 @@
 #!/usr/bin/bash
 
+# Check for system updates
 ue() {
   printf "\e[33mWARNING: System is outdated\e[0m\n"
 }
@@ -12,6 +13,9 @@ elif command -v dnf; then
   dnf check-update &>/dev/null && ue
 fi
 
+unfunction ue
+
+# Check updates for dotzsh
 (
   cd "$ZDOTDIR" && git fetch origin && if [ "$(git rev-parse HEAD)" != "$(git rev-parse '@{u}')" ]; then
     printf "\e[34mdotzsh update available. Run udz to apply.\e[0m\n"
