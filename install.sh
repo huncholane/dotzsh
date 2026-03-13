@@ -17,19 +17,21 @@ echo "Using $INSTALL for installations"
 
 # Pass in command to invoke and installation name
 install() {
-  echo -e "\[31m$1 is already installed. Skipping."
   if ! command -v "$1" &>/dev/null; then
-    echo -e "\e[33mInstalling $1 using '$INSTALL $2\e[0m'."
+    echo -e "\e[33mInstalling $1 using '$INSTALL $2'\e[0m"
     $INSTALL $2
+  else
+    echo -e "\e[32m$1 is already installed. Skipping.\e[0m"
   fi
 }
 
 # Pass in command to invoke and installation command
 custominstall() {
-  echo -e "\[31m$1 is already installed. Skipping."
   if ! command -v "$1" &>/dev/null; then
     echo -e "\e[33mInstalling $1 using $2\e[0m"
     eval "$2"
+  else
+    echo -e "\e[32m$1 is already installed. Skipping.\e[0m"
   fi
 }
 
