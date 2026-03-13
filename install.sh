@@ -7,9 +7,13 @@ fi
 if [ ! -d "$HOME/.cargo" ]; then
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 fi
+
+# Install lsd
 if [ ! -f /usr/bin/lsd ]; then
   cargo install lsd
 fi
+
+# Arch specific installations
 if [ -f /etc/arch-release ]; then
   # Install paru
   if ! command -v paru &>/dev/null; then

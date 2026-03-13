@@ -1,5 +1,5 @@
 zfunc_dir="$ZDOTDIR/.zfunc"
-if [ ! -d "$zfunc_dir" ]; then mkdir -p "$zfunc_dir"; fi
+if [ ! -d "$zfunc_dir" ]; then mkdir -p "$zfunc_dir" &>/dev/null; fi
 
 add_completions() {
   local file="$zfunc_dir/$1"
@@ -15,7 +15,8 @@ add_completions _uv 'uv generate-shell-completion zsh'
 # Custom PATH additions
 export PATH="$PATH:$HOME/.local/bin"
 
-# Setup fnm
-eval "$(fnm env --shell zsh)"
-
 . "$HOME/.cargo/env"
+
+# Setup fnm
+export PATH="$HOME/.local/share/fnm:$PATH"
+eval "$(fnm env --shell zsh)"
