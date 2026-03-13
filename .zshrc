@@ -7,8 +7,8 @@ fpath=("${ZDOTDIR}/.zfunc" $fpath)
 source "$ZDOTDIR/precomp.sh"
 autoload -Uz compinit && compinit
 
-# Check for updates
-source "${ZDOTDIR}/updates.sh"
+# Update checks and functions
+source "$ZDOTDIR/update_functions.sh"
 
 # Post compinit setups. Good for overriding plugins.
 source "$ZDOTDIR"/env.sh

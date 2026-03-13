@@ -27,5 +27,6 @@ if command -v tmux &>/dev/null; then
   tmux set -g pane-border-format " #{pane_index} | #{pane_current_command} | $(whoami)@#[bold]$(hostname)#[nobold]:#{pane_current_path} " &>/dev/null
 fi
 
+
 # Use powerlevel10k
 [[ ! -f ~/.config/zsh/.p10k.zsh ]] || source ~/.config/zsh/.p10k.zsh

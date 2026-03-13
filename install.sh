@@ -70,6 +70,13 @@ if [[ "$yn" == "y" ]]; then
   fi
 fi
 
+# Register update check cron job (every 6 hours)
+CRON_CMD="0 */6 * * * $HOME/.config/zsh/updates.sh # dotzsh-update-check"
+if ! crontab -l 2>/dev/null | grep -q "dotzsh/monitor_updates.sh"; then
+  (crontab -l 2>/dev/null; echo "$CRON_CMD") | crontab -
+  echo "Registered update check cron job"
+fi
+
 # Arch specific installations
 if [ -f /etc/arch-release ]; then
   echo "Arch detected"
