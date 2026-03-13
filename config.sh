@@ -15,6 +15,7 @@ alias v=nvim
 alias nvm=fnm
 alias ll='lsd -l'
 alias pip='uv pip'
+alias yay=paru
 
 # History substring search
 bindkey '^[[A' history-substring-search-up   # or '\eOA'
@@ -23,7 +24,7 @@ HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=1
 
 # Change tmux title
 if command -v tmux &>/dev/null; then
-  tmux set -g pane-border-format " #{pane_index} | #{pane_current_command} | $(whoami)@#[bold]$(hostname)#[nobold]:#{pane_current_path} "
+  tmux set -g pane-border-format " #{pane_index} | #{pane_current_command} | $(whoami)@#[bold]$(hostname)#[nobold]:#{pane_current_path} " &>/dev/null
 fi
 
 # Use powerlevel10k

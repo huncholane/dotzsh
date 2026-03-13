@@ -13,6 +13,7 @@ elif command -v dnf &>/dev/null; then
 elif command -v brew &>/dev/null; then
   INSTALL='brew install'
 fi
+echo "Using $INSTALL for installations"
 
 # Pass in command to invoke and installation name
 install() {
@@ -29,6 +30,7 @@ install curl curl
 install git git
 install nvim neovim
 install tmux tmux
+install hostname inetutils
 if command -v pacman &>/dev/null; then
   install docker docker
 else
@@ -70,8 +72,10 @@ fi
 
 # Arch specific installations
 if [ -f /etc/arch-release ]; then
+  echo "Arch detected"
   # Install paru
   if ! command -v paru &>/dev/null; then
+    echo "Installing paru"
     sudo pacman -S --needed base-devel
     git clone https://aur.archlinux.org/paru.git /tmp/paru
     (cd /tmp/paru && makepkg -si)
