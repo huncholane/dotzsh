@@ -49,7 +49,7 @@ read -rp "Are you sure you want to replace your current config? (y/n): " yn
 if [[ "$yn" == "y" ]]; then
   oldenv="$(cat "$HOME/.zshenv" 2>/dev/null)"
   echo 'export ZDOTDIR=$HOME/.config/zsh' >"$HOME/.zshenv"
-  if cp -r "$HOME/.config/zsh" "$STORAGE/backup"; then
+  if cp -r "$HOME/.config/zsh" "$STORAGE/backup" &>/dev/null; then
     echo "Stored $HOME/.config/zsh into $STORAGE/backup"
   fi
   rm -rf "$HOME/.config/zsh" &>/dev/null
