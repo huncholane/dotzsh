@@ -1,16 +1,66 @@
-# Install fnm
-if [ ! -d "$FNM_PATH" ]; then
-  curl -fsSL https://fnm.vercel.app/install | bash
+#!/bin/bash
+
+STORAGE="${XDG_DATA_HOME:-$HOME/.local/share}/dotzsh"
+mkdir -p "$STORAGE"
+
+# Select installer
+if command -v pacman &>/dev/null; then
+  INSTALL='sudo pacman -S --noconfirm'
+elif command -v apt &>/dev/null; then
+  INSTALL='sudo apt install -y'
+elif command -v dnf &>/dev/null; then
+  INSTALL='sudo dnf install -y'
+elif command -v brew &>/dev/null; then
+  INSTALL='brew install'
 fi
 
-# Install cargo
-if [ ! -d "$HOME/.cargo" ]; then
-  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+# Pass in command to invoke and installation name
+install() {
+  if ! command -v "$1" &>/dev/null; then $INSTALL $2; fi
+}
+
+# Pass in command to invoke and installation command
+custominstall() {
+  if ! command -v "$1" &>/dev/null; then eval "$2"; fi
+}
+
+# Install useful tools
+install curl curl
+install git git
+install nvim neovim
+install tmux tmux
+custominstall docker 'curl -fsSL https://get.docker.com | sh'
+custominstall fnm 'curl -fsSL https://fnm.vercel.app/install | bash'
+custominstall cargo "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh" && . "$HOME/.cargo/env"
+custominstall lsd 'cargo install lsd'
+
+# Initialize git setup
+if [[ -z $(git config --global user.name) ]]; then
+  read -rp "Git username: " username
+  git config --global user.name "$username"
+fi
+if [[ -z $(git config --global user.email) ]]; then
+  read -rp "Git email: " email
+  git config --global user.email "$email"
 fi
 
-# Install lsd
-if [ ! -f /usr/bin/lsd ]; then
-  cargo install lsd
+# Install dotzsh
+read -rp "Are you sure you want to replace your current config? (y/n): " yn
+if [[ "$yn" == "y" ]]; then
+  oldenv="$(cat "$HOME/.zshenv" 2>/dev/null)"
+  echo 'export ZDOTDIR=$HOME/.config/zsh' >"$HOME/.zshenv"
+  if cp -r "$HOME/.config/zsh" "$STORAGE/backup"; then
+    echo "Stored $HOME/.config/zsh into $STORAGE/backup"
+  fi
+  rm -rf "$HOME/.config/zsh" &>/dev/null
+  if ! git clone https://github.com/huncholane/dotzsh "$HOME/.config/zsh" 2>/dev/null; then
+    echo "Clone failed"
+    if cp -r "$STORAGE/backup" "$HOME/.config/zsh" &>/dev/null; then
+      echo "Reverted $HOME/.config/zsh to original"
+    fi
+  else
+    echo "$oldenv" >"$HOME/.config/zsh/.zshenv"
+  fi
 fi
 
 # Arch specific installations
@@ -19,7 +69,7 @@ if [ -f /etc/arch-release ]; then
   if ! command -v paru &>/dev/null; then
     sudo pacman -S --needed base-devel
     git clone https://aur.archlinux.org/paru.git /tmp/paru
-    cd /tmp/paru && makepkg -si
+    (cd /tmp/paru && makepkg -si)
     rm -rf /tmp/paru
   fi
 fi
