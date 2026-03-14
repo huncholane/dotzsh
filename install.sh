@@ -59,6 +59,8 @@ custominstall fnm 'curl -fsSL https://fnm.vercel.app/install | bash'
 custominstall cargo "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh" && . "$HOME/.cargo/env"
 custominstall lsd 'cargo install lsd'
 custominstall lazygit 'go install github.com/jesseduffield/lazygit@latest'
+custominstall fzf 'git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+~/.fzf/install'
 
 # Initialize git setup
 if [[ -z $(git config --global user.name) ]]; then

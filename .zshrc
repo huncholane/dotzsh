@@ -11,5 +11,5 @@ autoload -Uz compinit && compinit
 source "$ZDOTDIR/update_functions.sh"
 
 # Post compinit setups. Good for overriding plugins.
-source "$ZDOTDIR"/env.sh
+touch "$ZDOTDIR/env.sh" && source "$ZDOTDIR"/env.sh
 source "$ZDOTDIR"/config.sh
