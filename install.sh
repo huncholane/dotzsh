@@ -88,7 +88,7 @@ if [[ "$yn" == "y" ]]; then
     fi
   else
     echo "$oldenv" >"$HOME/.config/zsh/env.sh"
-    git clone --depth=1 https://github.com/mattmc3/antidote.git ${ZDOTDIR:-~}/.antidote
+    git clone --depth=1 https://github.com/mattmc3/antidote.git "$HOME/.config/zsh/.antidote"
   fi
 fi
 
