@@ -16,7 +16,7 @@ alias nvm=fnm
 alias ll='lsd -l'
 alias pip='uv pip'
 alias yay=paru
-alias t='tmux || tmux attach'
+alias t='tmux attach || tmux'
 
 # History substring search
 bindkey '^[[A' history-substring-search-up   # or '\eOA'
