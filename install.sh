@@ -2,21 +2,10 @@
 
 BLA_clock=(🕛 🕐 🕑 🕒 🕓 🕔 🕕 🕖 🕗 🕘 🕙 🕚)
 
-animate() {
-    eval "$1" &>/tmp/last_output &
-    local pid=$!
-    local spin='-\|/'
-    local i=0
-    while kill -0 $pid 2>/dev/null; do
-        for frame in "${BLA_clock[@]}"; do
-            printf "\r%s" "${frame}"
-            sleep 0.2
-        done
-    done
-    printf "\r"
-    wait $pid
-    return $?
-}
+# Use $prefix for commands that might need sudo
+prefix="$([[ $(whoami) == "root" ]] && echo "" || echo "sudo")"
+LAST_OUTPUT=$(mktemp)
+[ -d "$HOME" ] && echor "$HOME is not a directory. You are cancelled." && exit 1
 
 # Colored echos
 echop() {
@@ -34,12 +23,38 @@ echot() {
 echob() {
     echo -e "\e[34$1\e[0m"
 }
+echoy() {
+    echo -e "\e[33m$1\e[0m"
+}
 
-# Select sudo or not
-[ "$(whoami)" == "root" ] && prefix="" || prefix="sudo"
+# Ensure sudo and run command in background with animation
+# $1: command used to check if the 2nd command should be ran ("" is always true)
+# $2: command to run in the background
+# $3: text to append to animation
+# $4: success message
+# $5: failure message (after LAST_OUTPUT)
+animate() {
+    # Return when check is success
+    [[ -z "$1" ]] || eval "$1" && echog "✅ $4" && return 1
 
-login_sudo() {
-    [ "$prefix" != "sudo" ] || sudo -v
+    # Ensure sudo
+    [[ "$(whoami)" == "root" ]] || sudo -v || exit 1
+
+    # Run with output to tmp
+    eval "$2" &>"$LAST_OUTPUT" &
+
+    # Wait and animate the command
+    local pid=$!
+    while kill -0 $pid 2>/dev/null; do
+        for frame in "${BLA_clock[@]}"; do
+            printf "\r%s %s  " "${frame}" "$3"
+            sleep 0.2
+        done
+    done
+
+    # Clear and output error if needed
+    printf "\033[2K\r"
+    { wait $pid && echog "✅ $4"; } || { cat "$LAST_OUTPUT" && echor "\n🔴 $5" && exit 1; }
 }
 
 echo "Ensuring base tools are installed."
@@ -47,19 +62,22 @@ echo "Ensuring base tools are installed."
 # Install basic tools on debian
 if [ -f /etc/debian_version ]; then
     # Set the installer prefix
-    installer="$prefix apt-get"
-    install_cmd="$installer install -y"
+    installer="$prefix apt-get -y"
 
     # Update system
     echop "Detected Debian. Updating and upgrading now!"
-    animate "$installer update -y && $installer upgrade -y"
-    echog "✅ System up to date!"
+    animate "" \
+        "$installer update && $installer upgrade" \
+        "Updating system" \
+        "System up to date!" \
+        "Failed to update system"
 
     # Install build essential
-    dpkg -s build-essential &>/dev/null ||
-        { echo "Installing build-essential" && animate "$install_cmd build-essential" && printf "\e[1A\e[2K"; } ||
-        { cat /tmp/last_output && echor "Failed to install build-essential" && exit 1; }
-    echog "✅ build-essential installed"
+    animate "dpkg -s build-essential &>/dev/null" \
+        "$installer install build-essential" \
+        "Installing build-essential" \
+        "build-essential installed" \
+        "Failed to install build-essential"
 
 # Install basic tools for arch
 elif [ -f /etc/arch-release ]; then
@@ -69,16 +87,19 @@ elif [ -f /etc/arch-release ]; then
 
     # Update system
     echob "Arch Detected. You are elite. Updating and upgrading now!"
+    login_sudo
     animate "$installer -Syu"
     echog "✅ System up to date!"
 
     # Install base-devel
+    login_sudo
     pacman -Q base-devel &>/dev/null ||
         { echo "Installing base-devel" && animate "$installer base-devel" && printf "\e[1A\e[2K"; } ||
         { cat /tmp/last_output && echor "Failed to install base-devel"; }
     echog "✅ base-devel installed"
 
     # Install paru
+    login_sudo
     command -v paru &>/dev/null ||
         { echo "Installing paru" && animate "git clone https://aur.archlinux.org/paru.git /tmp/paru &&
             cd /tmp/paru && makepkg -si" && printf "\e[1A\e[2K"; } ||
@@ -87,68 +108,76 @@ elif [ -f /etc/arch-release ]; then
 fi
 
 # Install zsh
-command -v zsh &>/dev/null ||
-    { echo "Installing zsh" && animate "$install_cmd zsh" && printf "\e[1A\e[2K"; } ||
-    { cat /tmp/last_output && echor "Failed to install zsh" && exit 1; }
-echog "✅ zsh installed"
+animate "command -v zsh &>/dev/null" \
+    "$installer install zsh" \
+    "Installing zsh" \
+    "zsh installed" \
+    "Failed to install zsh"
 
 # Install curl (crazy but this happens sometimes)
-command -v curl &>/dev/null ||
-    { echo "Installing curl" && animate "$install_cmd curl" && printf "\e[1A\e[2K"; } ||
-    { cat /tmp/last_output && echor "Failed to install curl"; }
-echog "✅ curl installed"
+animate "command -v curl &>/dev/null" \
+    "$installer install curl" \
+    "Installing curl" \
+    "curl installed" \
+    "Failed to install curl"
 
 # Install unzip
-command -v unzip &>/dev/null ||
-    { echo "Installing unzip" && animate "$install_cmd unzip" && printf "\e[1A\e[2K"; } ||
-    { cat /tmp/last_output && echor "Failed to install unzip"; }
-echog "✅ unzip installed"
+animate "command -v unzip &>/dev/null" \
+    "$installer install unzip" \
+    "Installing unzip" \
+    "unzip installed" \
+    "Failed to install unzip"
 
 # Install git
-command -v git &>/dev/null ||
-    { echo "Installing git" && animate "$install_cmd git" && printf "\e[1A\e[2K"; } ||
-    { cat /tmp/last_output && echor "Failed to install git"; }
-echog "✅ git installed"
+animate "command -v git &>/dev/null" \
+    "$installer install git" \
+    "Installing git" \
+    "git installed" \
+    "Failed to install git"
 
 # Install cargo
-[ -f ~/.cargo/env ] ||
-    { echo "Installing cargo" && animate "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y" && printf "\e[1A\e[2K"; } ||
-    { cat /tmp/last_output && echor "Failed to install cargo" && exit 1; }
-echog "✅ cargo installed"
+animate "[ -f ~/.cargo/env ]" \
+    "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | $prefix sh -s -- -y" \
+    "Installing cargo" \
+    "cargo installed" \
+    "Failed to install cargo"
 . ~/.cargo/env
 
 # Install lsd with cargo
-command -v lsd &>/dev/null ||
-    { echo "Installing lsd" && animate "cargo install lsd" && printf "\e[1A\e[2K"; } ||
-    { cat /tmp/last_output && echor "Failed to install lsd" && exit 1; }
-echog "✅ lsd installed"
+animate "command -v lsd &>/dev/null" \
+    "cargo install lsd" \
+    "Installing lsd" \
+    "lsd installed" \
+    "Failed to install cargo"
 
 # Install golang
-export PATH=$PATH:/usr/local/go/bin:/usr/local/go/bin
+export PATH="$PATH:/usr/local/go/bin:/usr/local/go/bin:$HOME/go/bin"
 latest_go_version="$(curl -fsSL "https://go.dev/VERSION?m=text" | head -1)"
 filename="$latest_go_version.$([[ "$(uname -m)" == "Linux" ]] && { printf "linux"; } || printf "darwin").$(uname -m).tar.gz"
-[[ "$(go version 2>/dev/null | awk '{print $3}')" == "$latest_go_version" ]] ||
-    { login_sudo && echo "Installing golang" && animate "curl -fsSL https://go.dev/dl/go1.26.1.linux-amd64.tar.gz | $prefix tar xvzf - -C /usr/local" && printf "\e[1A\e[2K"; } ||
-    { cat /tmp/last_output && echor "Failed to install go" && exit 1; }
-echog "✅ golang installed"
+animate "[[ \"$(go version 2>/dev/null | awk '{print $3}')\" == \"$latest_go_version\" ]]" \
+    "curl -fsSL https://go.dev/dl/go1.26.1.linux-amd64.tar.gz | $prefix tar xvzf - -C /usr/local" \
+    "Installing go" \
+    "go installed" \
+    "Failed to install go"
 
 # Install lazygit with go
-command -v lazygit &>/dev/null ||
-    { echo "Installing lazygit" && animate "go install github.com/jesseduffield/lazygit@latest" && printf "\e[1A\e[2K"; } ||
-    { cat /tmp/last_output && echor "Failed to install lazygit" && exit 1; }
-echog "✅ lazygit installed"
+animate "command -v lazygit &>/dev/null" \
+    "go install github.com/jesseduffield/lazygit@latest" \
+    "Installing lazygit" \
+    "lazygit installed" \
+    "Failed to install lazygit"
 
 # Install yazi
 filename="yazi-$(uname -m)-$(
     { [[ "$(uname -s)" == "Linux" ]] && printf "unknown-linux-%s" "$(ldd --version 2>&1 | grep -qi musl && echo musl || echo gnu)"; } || printf "apple-darwin"
 ).zip"
-[ -d /usr/local/yazi ] ||
-    { login_sudo && echo "installing yazi" && animate "rm -rf /tmp/yazi* && $prefix rm -rf /usr/local/yazi &&
+animate "[ -d /usr/local/yazi ]" \
+    "rm -rf /tmp/yazi* && $prefix rm -rf /usr/local/yazi &&
         curl -fsSL https://github.com/sxyazi/yazi/releases/download/v26.1.22/yazi-x86_64-unknown-linux-gnu.zip -o /tmp/yazi.zip &&
-        unzip /tmp/yazi.zip -d /tmp && $prefix mv /tmp/yazi-x86_64-unknown-linux-gnu/ /usr/local/yazi/ && $prefix mv /usr/local/yazi/ya* /usr/local/bin" &&
-        printf "\e[1A\e[2K"; } ||
-    { cat /tmp/last_output && echor "Failed to install yazi" && exit 1; }
-echog "✅ yazi installed"
+        unzip /tmp/yazi.zip -d /tmp && $prefix mv /tmp/yazi-x86_64-unknown-linux-gnu/ /usr/local/yazi/ && $prefix mv /usr/local/yazi/ya* /usr/local/bin" \
+    "Installing yazi" \
+    "yazi installed" \
+    "Failed to install yazi"
 
 # Create backups
 [ -d ~/.config ] || mkdir -p ~/.config
@@ -158,19 +187,18 @@ echog "✅ yazi installed"
 
 # Clone config repo
 echo 'export ZDOTDIR=$HOME/.config/zsh' >~/.zshenv
-{ echo "Cloning dotzsh" && animate "git clone https://github.com/huncholane/dotzsh ~/.config/zsh" && printf "\e[1A\e[2K"; } ||
-    { cat /tmp/last_output && echor "Failed to clone dotzsh to ~/.config/zsh" && exit 1; }
 export ZDOTDIR=$HOME/.config/zsh
-echog "✅ dotzsh installed"
+animate "" \
+    "git clone https://github.com/huncholane/dotzsh ~/.config/zsh" \
+    "Cloning dotzsh" \
+    "dotzsh cloned. Just a few more things." \
+    "Failed to clone dotzsh"
 
 # Install antidote
-[ -d ~/.config/zsh/.antidote ] ||
-    { echo "Installing antidote" && animate "git clone --depth=1 https://github.com/mattmc3/antidote.git ${ZDOTDIR:-~}/.antidote" && printf "\e[1A\e[2K"; } ||
-    { cat /tmp/last_output && echor "Failed to install antidote" && exit 1; }
+animate "[ -d ~/.config/zsh/.antidote ]" \
+    "git clone --depth=1 https://github.com/mattmc3/antidote.git ${ZDOTDIR:-~}/.antidote" \
+    "Installing antidote" \
+    "antidote installed" \
+    "Failed to install antidote"
 
-echot -e "\nRun 'exec zsh' to see the magic"
-
-# [ -f /etc/arch-release ] && pacman -Q base-devel &>/dev/null || sudo pacman -S base-devel || echo -e "\e[31mFailed to install base-devel" && exit 1
-# [ -f /etc/debian_version ] && (apt update dpkg -s build-essential &>/dev/null || echo "missing build-essential")
-
-# command -v zsh || sudo apt install zsh || sudo dnf install zsh || sudo pacman -S zsh
+echot "\nRun 'exec zsh' to see the magic"
