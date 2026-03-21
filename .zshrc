@@ -1,3 +1,5 @@
+[ -f "$ZDOTDIR/before_plugins.sh" ] && source "$ZDOTDIR/before_plugins.sh"
+
 # Set up antidote
 source "$ZDOTDIR/.antidote/antidote.zsh"
 antidote load ${ZDOTDIR:-$HOME}/zsh_plugins.txt
@@ -10,6 +12,8 @@ autoload -Uz compinit && compinit
 # Update checks and functions
 source "$ZDOTDIR/update_functions.sh"
 
+# Add secret environment variables
+[ -f "$ZDOTDIR/secrets.sh" ] && source "$ZDOTDIR/secrets.sh"
+
 # Post compinit setups. Good for overriding plugins.
-[ -f "$ZDOTDIR/env.sh" ] && source "$ZDOTDIR/env.sh"
-source "$ZDOTDIR"/config.sh
+[ -f "$ZDOTDIR/after_plugins.sh" ] && source "$ZDOTDIR"/after_plugins.sh

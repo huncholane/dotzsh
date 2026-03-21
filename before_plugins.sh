@@ -16,6 +16,7 @@ export PATH="$HOME/.local/share/fnm:$PATH"
 # Add environments
 [ -f ~/.fzf.zsh ] && . ~/.fzf.zsh
 [ -f ~/.cargo/env ] && . "$HOME/.cargo/env"
+[ -f ~/.venv/bin/activate ] && . ~/.venv/bin/activate
 
 # Create completions now that path is updated
 add_completions _fnm 'fnm completions --shell zsh'
