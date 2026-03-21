@@ -8,19 +8,16 @@ add_completions() {
   fi
 }
 
+# Update PATH
+export PATH="$PATH:$HOME/.local/bin:$HOME/go/bin:$HOME/.avm/bin:/usr/local/go/bin"
+export PATH="$PATH:$HOME/.local/share/solana/install/active_release/bin"
+export PATH="$HOME/.local/share/fnm:$PATH"
+
+# Add environments
+[ -f ~/.fzf.zsh ] && . ~/.fzf.zsh
+[ -f ~/.cargo/env ] && . "$HOME/.cargo/env"
+
+# Create completions now that path is updated
 add_completions _fnm 'fnm completions --shell zsh'
 add_completions _rustup 'rustup completions zsh'
 add_completions _uv 'uv generate-shell-completion zsh'
-
-# Custom PATH additions
-export PATH="$PATH:$HOME/.local/bin:$HOME/go/bin:$HOME/.local/share/solana/install/active_release/bin:$HOME/.avm/bin:/usr/local/go/bin"
-
-# Setup fzf env
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-# Setup cargo env
-. "$HOME/.cargo/env"
-
-# Setup fnm
-export PATH="$HOME/.local/share/fnm:$PATH"
-eval "$(fnm env --shell zsh)"

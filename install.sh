@@ -1,12 +1,5 @@
 #!/bin/bash
 
-BLA_clock=(🕛 🕐 🕑 🕒 🕓 🕔 🕕 🕖 🕗 🕘 🕙 🕚)
-
-# Use $prefix for commands that might need sudo
-prefix="$([[ $(whoami) == "root" ]] && echo "" || echo "sudo")"
-LAST_OUTPUT=$(mktemp)
-[ -d "$HOME" ] && echor "$HOME is not a directory. You are cancelled." && exit 1
-
 # Colored echos
 echop() {
     echo -e "\e[35m$1\e[0m"
@@ -21,21 +14,31 @@ echot() {
     echo -e "\e[36m$1\e[0m"
 }
 echob() {
-    echo -e "\e[34$1\e[0m"
+    echo -e "\e[34m$1\e[0m"
 }
 echoy() {
     echo -e "\e[33m$1\e[0m"
 }
 
-# Ensure sudo and run command in background with animation
+# Clock animation
+BLA_clock=(🕛 🕐 🕑 🕒 🕓 🕔 🕕 🕖 🕗 🕘 🕙 🕚)
+
+# Use $prefix for commands that might need sudo
+prefix="$([[ $(whoami) == "root" ]] && echo "" || echo "sudo")"
+LAST_OUTPUT=$(mktemp)
+[ -d "$HOME" ] || { echor "$HOME is not a directory. You are cancelled." && exit 1; }
+export PATH="$PATH:/usr/local/go/bin:/usr/local/go/bin:$HOME/go/bin:$HOME/.local/bin"
+
+# Ensure sudo and run command in background with animation, returns 1 if there was an issue
 # $1: command used to check if the 2nd command should be ran ("" is always true)
 # $2: command to run in the background
 # $3: text to append to animation
 # $4: success message
 # $5: failure message (after LAST_OUTPUT)
+# $6: Ignore output if set
 animate() {
     # Return when check is success
-    [[ -z "$1" ]] || eval "$1" && echog "✅ $4" && return 1
+    [[ -n "$1" ]] && eval "$1" && echob "ℹ️ No action required. $4" && return 0
 
     # Ensure sudo
     [[ "$(whoami)" == "root" ]] || sudo -v || exit 1
@@ -54,7 +57,7 @@ animate() {
 
     # Clear and output error if needed
     printf "\033[2K\r"
-    { wait $pid && echog "✅ $4"; } || { cat "$LAST_OUTPUT" && echor "\n🔴 $5" && exit 1; }
+    { { wait $pid || [[ -n "$6" ]]; } && echog "✅ $4"; } || { cat "$LAST_OUTPUT" && echor "\n🔴 $5" && return 1; }
 }
 
 echo "Ensuring base tools are installed."
@@ -70,14 +73,14 @@ if [ -f /etc/debian_version ]; then
         "$installer update && $installer upgrade" \
         "Updating system" \
         "System up to date!" \
-        "Failed to update system"
+        "Failed to update system" || exit 1
 
     # Install build essential
     animate "dpkg -s build-essential &>/dev/null" \
         "$installer install build-essential" \
         "Installing build-essential" \
         "build-essential installed" \
-        "Failed to install build-essential"
+        "Failed to install build-essential" || exit 1
 
 # Install basic tools for arch
 elif [ -f /etc/arch-release ]; then
@@ -112,35 +115,35 @@ animate "command -v zsh &>/dev/null" \
     "$installer install zsh" \
     "Installing zsh" \
     "zsh installed" \
-    "Failed to install zsh"
+    "Failed to install zsh" || exit 1
 
 # Install curl (crazy but this happens sometimes)
 animate "command -v curl &>/dev/null" \
     "$installer install curl" \
     "Installing curl" \
     "curl installed" \
-    "Failed to install curl"
+    "Failed to install curl" || exit 1
 
 # Install unzip
 animate "command -v unzip &>/dev/null" \
     "$installer install unzip" \
     "Installing unzip" \
     "unzip installed" \
-    "Failed to install unzip"
+    "Failed to install unzip" || exit 1
 
 # Install git
 animate "command -v git &>/dev/null" \
     "$installer install git" \
     "Installing git" \
     "git installed" \
-    "Failed to install git"
+    "Failed to install git" || exit 1
 
 # Install cargo
 animate "[ -f ~/.cargo/env ]" \
-    "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | $prefix sh -s -- -y" \
+    "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y" \
     "Installing cargo" \
     "cargo installed" \
-    "Failed to install cargo"
+    "Failed to install cargo" || exit 1
 . ~/.cargo/env
 
 # Install lsd with cargo
@@ -148,24 +151,23 @@ animate "command -v lsd &>/dev/null" \
     "cargo install lsd" \
     "Installing lsd" \
     "lsd installed" \
-    "Failed to install cargo"
+    "Failed to install cargo" || exit 1
 
 # Install golang
-export PATH="$PATH:/usr/local/go/bin:/usr/local/go/bin:$HOME/go/bin"
 latest_go_version="$(curl -fsSL "https://go.dev/VERSION?m=text" | head -1)"
 filename="$latest_go_version.$([[ "$(uname -m)" == "Linux" ]] && { printf "linux"; } || printf "darwin").$(uname -m).tar.gz"
 animate "[[ \"$(go version 2>/dev/null | awk '{print $3}')\" == \"$latest_go_version\" ]]" \
     "curl -fsSL https://go.dev/dl/go1.26.1.linux-amd64.tar.gz | $prefix tar xvzf - -C /usr/local" \
     "Installing go" \
     "go installed" \
-    "Failed to install go"
+    "Failed to install go" || exit 1
 
 # Install lazygit with go
 animate "command -v lazygit &>/dev/null" \
     "go install github.com/jesseduffield/lazygit@latest" \
     "Installing lazygit" \
     "lazygit installed" \
-    "Failed to install lazygit"
+    "Failed to install lazygit" || exit 1
 
 # Install yazi
 filename="yazi-$(uname -m)-$(
@@ -177,13 +179,28 @@ animate "[ -d /usr/local/yazi ]" \
         unzip /tmp/yazi.zip -d /tmp && $prefix mv /tmp/yazi-x86_64-unknown-linux-gnu/ /usr/local/yazi/ && $prefix mv /usr/local/yazi/ya* /usr/local/bin" \
     "Installing yazi" \
     "yazi installed" \
-    "Failed to install yazi"
+    "Failed to install yazi" || exit 1
+
+# Install fnm
+animate "[ -d ~/.local/share/fnm ]" \
+    "curl -fsSL https://fnm.vercel.app/install | bash" \
+    "Installing fnm" \
+    "fnm installed" \
+    "Failed to install fnm" \
+    "ignore fail"
+
+# Install uv
+animate "[ -f ~/.local/bin/uv ]" \
+    "curl -LsSf https://astral.sh/uv/install.sh | sh" \
+    "Installing uv" \
+    "uv installed" \
+    "Failed to install fnm" || exit 1
 
 # Create backups
 [ -d ~/.config ] || mkdir -p ~/.config
 [ -f ~/.zshrc ] && mv ~/.zshrc ~/.zshrc.bak && echot "Backup ~/.zshrc -> ~/.zshrc.bak"
 [ -f ~/.zshenv ] && mv ~/.zshenv ~/.zshenv.bak && echot "Backup ~/.zshenv -> ~/.zshenv.bak"
-[ -d ~/.config/zsh ] && rm -rf ~/.config/zsh.bak
+[ -d ~/.config/zsh ] && rm -rf ~/.config/zsh.bak && mv ~/.config/zsh ~/.config/zsh.bak
 
 # Clone config repo
 echo 'export ZDOTDIR=$HOME/.config/zsh' >~/.zshenv
@@ -192,13 +209,13 @@ animate "" \
     "git clone https://github.com/huncholane/dotzsh ~/.config/zsh" \
     "Cloning dotzsh" \
     "dotzsh cloned. Just a few more things." \
-    "Failed to clone dotzsh"
+    "Failed to clone dotzsh" || exit 1
 
 # Install antidote
 animate "[ -d ~/.config/zsh/.antidote ]" \
     "git clone --depth=1 https://github.com/mattmc3/antidote.git ${ZDOTDIR:-~}/.antidote" \
     "Installing antidote" \
     "antidote installed" \
-    "Failed to install antidote"
+    "Failed to install antidote" || exit 1
 
 echot "\nRun 'exec zsh' to see the magic"
