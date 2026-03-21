@@ -194,7 +194,15 @@ animate "[ -f ~/.local/bin/uv ]" \
     "curl -LsSf https://astral.sh/uv/install.sh | sh" \
     "Installing uv" \
     "uv installed" \
-    "Failed to install fnm" || exit 1
+    "Failed to install uv" || exit 1
+[ -f ~/.venv/bin/activate ] || (cd ~ && uv venv &>/dev/null)
+
+# Install zoxide
+animate "[ -f ~/.local/bin/zoxide ]" \
+    "curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh" \
+    "Installing zoxide" \
+    "zoxide installed" \
+    "Failed to install zoxide"
 
 # Create backups
 [ -d ~/.config ] || mkdir -p ~/.config

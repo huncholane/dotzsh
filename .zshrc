@@ -6,7 +6,6 @@ antidote load ${ZDOTDIR:-$HOME}/zsh_plugins.txt
 
 # Setup completions
 fpath=("${ZDOTDIR}/.zfunc" $fpath)
-source "$ZDOTDIR/precomp.sh"
 autoload -Uz compinit && compinit
 
 # Update checks and functions
