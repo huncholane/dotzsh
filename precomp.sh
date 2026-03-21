@@ -13,7 +13,7 @@ add_completions _rustup 'rustup completions zsh'
 add_completions _uv 'uv generate-shell-completion zsh'
 
 # Custom PATH additions
-export PATH="$PATH:$HOME/.local/bin:$HOME/go/bin"
+export PATH="$PATH:$HOME/.local/bin:$HOME/go/bin:$HOME/.local/share/solana/install/active_release/bin:$HOME/.avm/bin:/usr/local/go/bin"
 
 # Setup fzf env
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
