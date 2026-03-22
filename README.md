@@ -35,3 +35,10 @@ curl -fsSL https://raw.githubusercontent.com/huncholane/dotzsh/main/install.sh |
 | [powerlevel10k](https://github.com/romkatv/powerlevel10k) | Fast, configurable zsh prompt theme |
 | [zsh-autoswitch-virtualenv](https://github.com/MichaelAquilina/zsh-autoswitch-virtualenv) | Auto-activate Python virtualenvs on cd |
 | [forgit](https://github.com/wfxr/forgit) | Interactive git commands powered by fzf |
+
+## Test Installer
+
+The `install_test.sh` file runs a docker image for ubuntu (debian) or arch
+given a parameter ubuntu or arch. It creates a user with sudo priviledge and
+symlinks install.sh to `/bin/doit`. Just start the script to enter a test
+docker container and run `doit` to try it on the container.
