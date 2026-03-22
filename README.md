@@ -1,23 +1,27 @@
 # dotzsh
 
-Clone and go zsh config.
+Tired of reconfiguring mandatory programs over and over on new systems. This
+one line install script fixes up a system to become a developement power house.
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/huncholane/dotzsh/main/install.sh | bash
 ```
 
-## Programs
+## Programs Installed
 
-| Program | Description |
-|---------|-------------|
-| [neovim](https://github.com/neovim/neovim) | Hyperextensible Vim-based text editor |
-| [tmux](https://github.com/tmux/tmux) | Terminal multiplexer |
-| [docker](https://github.com/moby/moby) | Container runtime |
-| [fnm](https://github.com/Schniz/fnm) | Fast Node.js version manager |
-| [cargo](https://github.com/rust-lang/cargo) | Rust package manager |
-| [lsd](https://github.com/lsd-rs/lsd) | Modern ls replacement with icons and colors |
+| Program | Installer | Description | System |
+|---------|-----------|-------------|--------|
+| [git](https://git-scm.com/install/linux) | System | Repo management | All |
+| [base-devel](https://archlinux.org/packages/core/any/base-devel/) | System | Developer tools | Arch |
+| [go](https://go.dev/doc/install) | Binary | Programming language also used to install some programs | All | 
+| [cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html) | Install Script | Used for rust, also used to install some programs | All |
+| [lsd](https://github.com/lsd-rs/lsd) | cargo | Adds icons to ls | All |
+| [lazygit](https://github.com/jesseduffield/lazygit) | Binary | Best way to use git by far | All |
+| [fnm](https://github.com/Schniz/fnm) | Install Script | Node manager written in rust | All |
+| [uv](https://docs.astral.sh/uv/getting-started/installation/) | Install Script | Python environment manager written in rust | All |
+| [yazi](https://github.com/sxyazi/yazi/releases/tag/v26.1.22) | Binary | Miller pane tui file explorer | All |
 
-## Plugins
+## Antidote Plugins
 
 | Plugin | Description |
 |--------|-------------|
