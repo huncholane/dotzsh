@@ -66,6 +66,7 @@ echo "Ensuring base tools are installed."
 if [ -f /etc/debian_version ]; then
     # Set the installer prefix
     installer="$prefix apt-get -y"
+    install_cmd="$installer install"
 
     # Update system
     echop "Detected Debian. Updating and upgrading now!"
@@ -77,7 +78,7 @@ if [ -f /etc/debian_version ]; then
 
     # Install build essential
     animate "dpkg -s build-essential &>/dev/null" \
-        "$installer install build-essential" \
+        "$install_cmd build-essential" \
         "Installing build-essential" \
         "build-essential installed" \
         "Failed to install build-essential" || exit 1
@@ -85,55 +86,74 @@ if [ -f /etc/debian_version ]; then
 # Install basic tools for arch
 elif [ -f /etc/arch-release ]; then
     # Set pacman prefix
-    installer="$prefix pacman"
-    install_cmd="$installer -S --noconfirm"
+    installer="$prefix pacman --noconfirm"
+    install_cmd="$installer -S"
 
     # Update system
-    echob "Arch Detected. You are elite. Updating and upgrading now!"
-    login_sudo
-    animate "$installer -Syu"
-    echog "✅ System up to date!"
+    echot "Arch Detected. You are elite. Updating and upgrading now!"
+    animate "" \
+        "$installer -Syu" \
+        "Updating system" \
+        "System up to date!" \
+        "Failed to update system" || exit 1
 
     # Install base-devel
-    login_sudo
-    pacman -Q base-devel &>/dev/null ||
-        { echo "Installing base-devel" && animate "$installer base-devel" && printf "\e[1A\e[2K"; } ||
-        { cat /tmp/last_output && echor "Failed to install base-devel"; }
-    echog "✅ base-devel installed"
+    animate "pacman -Q base-devel &>/dev/null" \
+        "$install_cmd base-devel" \
+        "Installing base-devel" \
+        "base-devel installed" \
+        "Failed to install base-devel" || exit 1
+
+    # Install git
+    animate "command -v git &>/dev/null" \
+        "$install_cmd git" \
+        "Installing git" \
+        "git installed" \
+        "Failed to install git" || exit 1
+
+    # Install cargo before paru
+    animate "[ -f ~/.cargo/env ]" \
+        "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y" \
+        "Installing cargo" \
+        "cargo installed" \
+        "Failed to install cargo" || exit 1
 
     # Install paru
-    login_sudo
-    command -v paru &>/dev/null ||
-        { echo "Installing paru" && animate "git clone https://aur.archlinux.org/paru.git /tmp/paru &&
-            cd /tmp/paru && makepkg -si" && printf "\e[1A\e[2K"; } ||
-        { cat /tmp/last_output && echor "Failed to install paru"; }
-    echog "✅ paru installed"
+    paru_dir="$(mktemp -d)"
+    # command -v paru &>/dev/null ||
+    #     { rm -rf $HOME/paru && git clone https://aur.archlinux.org/paru.git $paru_dir && cd $paru_dir && makepkg -si; } || 
+    #     { exit 1; }
+    animate "command -v paru &>/dev/null" \
+        "rm -rf $HOME/paru && git clone https://aur.archlinux.org/paru.git $paru_dir && cd $paru_dir && makepkg -si --noconfirm" \
+        "Installing paru" \
+        "paru installed" \
+        "Failed to install paru" || exit 1
 fi
 
 # Install zsh
 animate "command -v zsh &>/dev/null" \
-    "$installer install zsh" \
+    "$install_cmd zsh" \
     "Installing zsh" \
     "zsh installed" \
     "Failed to install zsh" || exit 1
 
 # Install curl (crazy but this happens sometimes)
 animate "command -v curl &>/dev/null" \
-    "$installer install curl" \
+    "$install_cmd curl" \
     "Installing curl" \
     "curl installed" \
     "Failed to install curl" || exit 1
 
 # Install unzip
 animate "command -v unzip &>/dev/null" \
-    "$installer install unzip" \
+    "$install_cmd unzip" \
     "Installing unzip" \
     "unzip installed" \
     "Failed to install unzip" || exit 1
 
 # Install git
 animate "command -v git &>/dev/null" \
-    "$installer install git" \
+    "$install_cmd git" \
     "Installing git" \
     "git installed" \
     "Failed to install git" || exit 1
@@ -161,6 +181,13 @@ animate "[[ \"$(go version 2>/dev/null | awk '{print $3}')\" == \"$latest_go_ver
     "Installing go" \
     "go installed" \
     "Failed to install go" || exit 1
+
+# Install fzf (written in go)
+animate "command -v fzf &>/dev/null" \
+    "git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install" \
+    "Installing fzf" \
+    "fzf installed" \
+    "Failed to install fzf"
 
 # Install lazygit with go
 animate "command -v lazygit &>/dev/null" \
