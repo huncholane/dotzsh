@@ -44,7 +44,7 @@ if [ -f /etc/debian_version ]; then
         { tput smcup && echot "ℹ️ Installing build-essential" &&
             eval "$install_cmd build-essential" &&
             tput rmcup && echog "✅ build-essential installed"; } ||
-        { echor "Failed to install build-essential" && exit 1; }
+        { echor "🔴 Failed to install build-essential" && exit 1; }
 
 # Install basic tools for arch
 elif [ -f /etc/arch-release ]; then
@@ -63,7 +63,7 @@ elif [ -f /etc/arch-release ]; then
         { tput smcup &&
             eval "$install_cmd base-devel" && echot "ℹ️ Installing base-devel" &&
             tput rmcup && echog "✅ base-devel installed"; } ||
-        { echor "Failed to install base-devel" && exit 1; }
+        { echor "🔴 Failed to install base-devel" && exit 1; }
 
     # Install git
     command -v git &>/dev/null && echob "☑️ git already installed" ||
@@ -88,7 +88,7 @@ elif [ -f /etc/arch-release ]; then
         { tput smcup && echot "ℹ️ Installing paru" &&
             rm -rf $HOME/paru && git clone https://aur.archlinux.org/paru.git $paru_dir && cd $paru_dir && makepkg -si --noconfirm &&
             tput rmcup && echog "✅ paru installed"; } ||
-        { echor "🔴 Failed to install paru" && exit 1; }
+        { tput rmcup && echor "🔴 Failed to install paru"; }
 fi
 
 # Install zsh
@@ -97,7 +97,7 @@ command -v zsh &>/dev/null && echob "☑️ zsh already installed" ||
         eval "$install_cmd zsh" &&
         tput rmcup && echog "✅ zsh installed"; } ||
     { echor "🔴 Failed to install zsh" && exit 1; }
-chsh -s /usr/bin/zsh
+chsh -s /usr/bin/zsh &>/dev/null && echot "ℹ️ Set default shell to zsh"
 
 # Install curl (crazy but this happens sometimes)
 command -v curl &>/dev/null && echob "☑️ curl already installed" ||
