@@ -97,6 +97,7 @@ command -v zsh &>/dev/null && echob "☑️ zsh already installed" ||
         eval "$install_cmd zsh" &&
         tput rmcup && echog "✅ zsh installed"; } ||
     { echor "🔴 Failed to install zsh" && exit 1; }
+chsh -s /usr/bin/zsh
 
 # Install curl (crazy but this happens sometimes)
 command -v curl &>/dev/null && echob "☑️ curl already installed" ||
@@ -229,5 +230,5 @@ export ZDOTDIR=$HOME/.config/zsh
     git clone --depth=1 https://github.com/mattmc3/antidote.git ${ZDOTDIR:-~}/.antidote &&
     tput rmcup && echog "✅ antidote installed"; }
 
-# echot "\n🚀 Run 'exec zsh' to see the magic"
+# Start new shell with everything installed
 exec zsh
