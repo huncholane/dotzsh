@@ -2,22 +2,22 @@
 
 # Colored echos
 echop() {
-    echo -e "\e[35m$1\e[0m"
+    echo -e "\033[35m$1\033[0m"
 }
 echor() {
-    echo -e "\e[31m$1\e[0m"
+    echo -e "\033[31m$1\033[0m"
 }
 echog() {
-    echo -e "\e[32m$1\e[0m"
+    echo -e "\033[32m$1\033[0m"
 }
 echot() {
-    echo -e "\e[36m$1\e[0m"
+    echo -e "\033[36m$1\033[0m"
 }
 echob() {
-    echo -e "\e[34m$1\e[0m"
+    echo -e "\033[34m$1\033[0m"
 }
 echoy() {
-    echo -e "\e[33m$1\e[0m"
+    echo -e "\033[33m$1\033[0m"
 }
 
 # Use $prefix for commands that might need sudo
@@ -140,9 +140,9 @@ current_go_version="$(go version 2>/dev/null | awk '{print $3}')"
 latest_go_version="$(curl -fsSL "https://go.dev/VERSION?m=text" | head -1)"
 case "$(uname -s)$(uname -m)" in
 "Linuxx86_64") go_arch="linux-amd64" ;;
-"Linuxaarch64") go_arch="linux-arm64" ;;
+"Linuxarm64") go_arch="linux-arm64" ;;
 "Darwinx86_64") go_arch="darwin-amd64" ;;
-"Darwinaarch64") go_arch="darwin-arm64" ;;
+"Darwinarm64") go_arch="darwin-arm64" ;;
 *) echor "unknown architecture, don't care" && exit 1 ;;
 esac
 filename="$latest_go_version.$go_arch.tar.gz"
