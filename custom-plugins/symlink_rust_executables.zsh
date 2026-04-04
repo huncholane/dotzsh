@@ -15,7 +15,7 @@ SYMLINKED_PROGRAMS=()
 # Your next command will switch out the symlink.
 function _symlink_rust_executables() {
   [[ "$SYMLINK_DEBUGGING_MODE" == "1" ]] && echo "searching target/$SYMLINK_RUST_ENV for executables"
-  for exe in target/${SYMLINK_RUST_ENV:-debug}/*; do
+  [[ -d target/$SYMLINK_RUST_ENV ]] && for exe in target/$SYMLINK_RUST_ENV/*; do
     [[ -f "$exe" && -x "$exe" ]] || continue
     local name="$(basename "$exe")"
     local src="$(realpath "$exe")"
