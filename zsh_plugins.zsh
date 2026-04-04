@@ -16,7 +16,5 @@ source "$HOME/.cache/antidote/https-COLON--SLASH--SLASH-github.com-SLASH-ajeetds
 fpath+=( "$HOME/.cache/antidote/https-COLON--SLASH--SLASH-github.com-SLASH-romkatv-SLASH-powerlevel10k" )
 source "$HOME/.cache/antidote/https-COLON--SLASH--SLASH-github.com-SLASH-romkatv-SLASH-powerlevel10k/powerlevel10k.zsh-theme"
 source "$HOME/.cache/antidote/https-COLON--SLASH--SLASH-github.com-SLASH-romkatv-SLASH-powerlevel10k/powerlevel9k.zsh-theme"
-fpath+=( "$HOME/.cache/antidote/https-COLON--SLASH--SLASH-github.com-SLASH-MichaelAquilina-SLASH-zsh-autoswitch-virtualenv" )
-source "$HOME/.cache/antidote/https-COLON--SLASH--SLASH-github.com-SLASH-MichaelAquilina-SLASH-zsh-autoswitch-virtualenv/autoswitch_virtualenv.plugin.zsh"
 fpath+=( "$HOME/.cache/antidote/https-COLON--SLASH--SLASH-github.com-SLASH-wfxr-SLASH-forgit" )
 source "$HOME/.cache/antidote/https-COLON--SLASH--SLASH-github.com-SLASH-wfxr-SLASH-forgit/forgit.plugin.zsh"

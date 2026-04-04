@@ -1,5 +1,10 @@
 [ -f "$ZDOTDIR/before_plugins.sh" ] && source "$ZDOTDIR/before_plugins.sh"
 
+# Load custom plugins
+for plugin in ~/.config/zsh/custom-plugins/*.zsh; do
+  source "$plugin"
+done
+
 # Set up antidote
 source "$ZDOTDIR/.antidote/antidote.zsh"
 antidote load ${ZDOTDIR:-$HOME}/zsh_plugins.txt
