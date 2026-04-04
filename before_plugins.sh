@@ -2,12 +2,13 @@
 export PATH="$PATH:$HOME/.local/bin:$HOME/go/bin:$HOME/.avm/bin:/usr/local/go/bin"
 export PATH="$PATH:$HOME/.local/share/solana/install/active_release/bin"
 export PATH="$HOME/.local/share/fnm:$PATH"
+export PATH="$PATH:/usr/local/flutter/bin"
 
 # Add environments
 [ -f ~/.fzf.zsh ] && . ~/.fzf.zsh
 [ -f ~/.cargo/env ] && . "$HOME/.cargo/env"
 [ -f ~/.venv/bin/activate ] && . ~/.venv/bin/activate
-eval $(fnm env)
+eval "$(fnm env)"
 
 # Create completions into ~/.config/.zfuncs directory
 zfunc_dir="$ZDOTDIR/.zfunc"
