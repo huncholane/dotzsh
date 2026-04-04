@@ -4,6 +4,13 @@ export PATH="$PATH:$HOME/.local/share/solana/install/active_release/bin"
 export PATH="$HOME/.local/share/fnm:$PATH"
 export PATH="$PATH:/usr/local/flutter/bin"
 
+# Set up a cached file as a subprocess with all the home rust debug paths in it
+(
+  mkdir -p ~/.cache
+  fd -I -c never -E 'doc' -E 'package' --full-path 'target/debug$' ~ | tr '\n' ':' >~/.cache/RUST_DEBUG_PATHS
+)
+[ -f ~/.cache/RUST_DEBUG_PATHS ] && RUST_DEBUG_PATHS="$(cat ~/.cache/RUST_DEBUG_PATHS)" && export PATH="$PATH:$RUST_DEBUG_PATHS"
+
 # Add environments
 [ -f ~/.fzf.zsh ] && . ~/.fzf.zsh
 [ -f ~/.cargo/env ] && . "$HOME/.cargo/env"
