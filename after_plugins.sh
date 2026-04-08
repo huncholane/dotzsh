@@ -17,6 +17,7 @@ alias ll='lsd -l'
 alias pip='uv pip'
 alias yay=paru
 alias t='tmux attach || tmux'
+alias watchall='watchexec --no-vcs-ignore'
 
 # History substring search
 bindkey '^[[A' history-substring-search-up   # or '\eOA'
